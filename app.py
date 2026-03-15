@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template,send_file
 import csv
 import os
 import pandas as pd
@@ -13,6 +13,11 @@ if not os.path.exists(CSV_FILE):
         writer = csv.writer(f)
         header = ["student_id"] + [f"q{i}" for i in range(1,51)]
         writer.writerow(header)
+
+
+@app.route("/download")
+def download():
+    return send_file("responses.csv", as_attachment=True)
 
 @app.route("/")
 def home():

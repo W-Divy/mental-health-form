@@ -18,27 +18,56 @@
     }
 
     html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
 
+    body {
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      transition: background-color 2s ease;
+    }
+
+    /* Animated grid overlay */
     body::before {
       content: ''; position: fixed; inset: 0;
-      background-image: linear-gradient(rgba(167,139,250,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(167,139,250,0.03) 1px, transparent 1px);
-      background-size: 48px 48px; animation: gridShift 20s linear infinite; pointer-events: none; z-index: 0;
+      background-image: linear-gradient(rgba(167,139,250,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(167,139,250,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      animation: gridShift 20s linear infinite;
+      pointer-events: none; z-index: 0;
     }
     @keyframes gridShift { 0% { transform: translate(0,0); } 100% { transform: translate(48px,48px); } }
 
+    /* Mouse-interactive spotlight */
+    #mouse-light {
+      position: fixed;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Background colour orbs */
     .orb { position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.12; pointer-events: none; z-index: 0; animation: orbFloat 12s ease-in-out infinite alternate; }
-    .orb1 { width: 500px; height: 500px; background: #a78bfa; top: -100px; left: -150px; animation-delay: 0s; }
-    .orb2 { width: 400px; height: 400px; background: #34d399; bottom: -100px; right: -100px; animation-delay: -4s; }
-    .orb3 { width: 300px; height: 300px; background: #f472b6; top: 40%; left: 50%; animation-delay: -8s; }
-    @keyframes orbFloat { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-20px) scale(1.05); } 100% { transform: translate(-20px,30px) scale(0.95); } }
+    .orb1 { width: 500px; height: 500px; top: -100px; left: -150px; animation-delay: 0s; }
+    .orb2 { width: 400px; height: 400px; bottom: -100px; right: -100px; animation-delay: -4s; }
+    .orb3 { width: 300px; height: 300px; top: 40%; left: 50%; animation-delay: -8s; }
+    @keyframes orbFloat {
+      0% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(30px,-20px) scale(1.05); }
+      100% { transform: translate(-20px,30px) scale(0.95); }
+    }
 
     /* Custom Cursor */
     #cur-dot { position: fixed; width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: background 0.2s, transform 0.1s; }
     #cur-ring { position: fixed; width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(167,139,250,0.5); pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: width 0.25s ease, height 0.25s ease, border-color 0.25s; }
     body.cur-hover #cur-ring { width: 44px; height: 44px; border-color: rgba(167,139,250,0.9); }
     body.cur-hover #cur-dot { background: #c4b5fd; transform: translate(-50%,-50%) scale(1.5); }
-    .trail-pt { position: fixed; border-radius: 50%; pointer-events: none; background: #a78bfa; transform: translate(-50%,-50%); }
+    .trail-pt { position: fixed; border-radius: 50%; pointer-events: none; transform: translate(-50%,-50%); }
 
     .header { position: relative; z-index: 1; text-align: center; padding: 80px 24px 60px; }
     .header-tag { display: inline-block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(167,139,250,0.3); padding: 6px 16px; border-radius: 2px; margin-bottom: 28px; animation: fadeIn 0.6s ease both; }
@@ -97,6 +126,26 @@
     .submit-note { font-size: 12px; color: var(--muted); margin-top: 14px; font-family: var(--mono); }
     .error-msg { display: none; color: #f87171; font-family: var(--mono); font-size: 12px; margin-top: 12px; }
 
+    /* Theme indicator pill */
+    #theme-pill {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 100;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
+      text-transform: uppercase;
+      pointer-events: none;
+      transition: color 1s, border-color 1s;
+    }
+
     @media (max-width: 500px) {
       .scale-labels { display: none; }
       .scale-btn label { height: 34px; font-size: 12px; }
@@ -107,13 +156,14 @@
 </head>
 <body>
 
-  <!-- Cursor elements — must be first inside body -->
   <div id="cur-dot"></div>
   <div id="cur-ring"></div>
+  <div id="mouse-light"></div>
+  <div id="theme-pill">violet dusk</div>
 
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
+  <div class="orb orb1" id="orb1"></div>
+  <div class="orb orb2" id="orb2"></div>
+  <div class="orb orb3" id="orb3"></div>
 
   <div class="progress-wrap">
     <div class="progress-inner">
@@ -147,99 +197,8 @@
         <div class="section-line"></div>
       </div>
 
-      {% set questions = [
-        (1,  "A", "At times, I notice myself feeling tense or on edge without a clear reason.", false),
-        (2,  "A", "Even when nothing urgent is happening, my mind sometimes stays busy or restless.", false),
-        (3,  "A", "I occasionally feel pressure to live up to expectations from myself or others.", false),
-        (4,  "A", "I sometimes think a lot about what might happen in my future.", false),
-        (5,  "A", "There are days when I feel low even if I cannot point to a specific reason.", false),
-        (6,  "A", "By the end of the day, I sometimes feel emotionally worn out.", false),
-        (7,  "A", "I usually feel able to handle everyday situations that come my way.", true),
-        (8,  "A", "Small problems can sometimes feel bigger than they actually are.", false),
-        (9,  "A", "I sometimes replay situations in my mind and think about them repeatedly.", false),
-        (10, "A", "I feel generally positive about how things are going in my life.", true),
-        (11, "A", "I sometimes find myself worrying about things that may never happen.", false),
-        (12, "A", "I feel emotionally balanced most of the time.", true),
-        (13, "B", "Thinking about assignments or deadlines sometimes makes me uneasy.", false),
-        (14, "B", "I sometimes wonder if I can keep up with the pace of my courses.", false),
-        (15, "B", "Before exams, I find myself thinking about possible outcomes a lot.", false),
-        (16, "B", "I sometimes struggle to stay fully focused while studying.", false),
-        (17, "B", "I notice that academic expectations can feel heavy at times.", false),
-        (18, "B", "I feel confident in managing my coursework most of the time.", true),
-        (19, "B", "When I fall behind, I sometimes feel discouraged.", false),
-        (20, "B", "I sometimes compare my performance with other students.", false),
-        (21, "B", "I feel comfortable asking for help when I don't understand something.", true),
-        (22, "B", "There are times when I question whether I am studying the right way.", false),
-        (23, "B", "I feel satisfied with how I am progressing academically.", true),
-        (24, "B", "I sometimes feel pressure to do better even when I am already doing well.", false),
-        (25, "C", "On some nights, it takes me time to fall asleep because my mind is active.", false),
-        (26, "C", "I occasionally wake up feeling less rested than I expected.", false),
-        (27, "C", "I notice changes in my appetite during busy or stressful times.", false),
-        (28, "C", "I sometimes feel physically tired even on normal days.", false),
-        (29, "C", "I feel energetic and refreshed on most mornings.", true),
-        (30, "C", "My sleep pattern changes during exams or heavy workload periods.", false),
-        (31, "C", "I sometimes skip meals or eat irregularly when stressed.", false),
-        (32, "C", "I feel physically healthy overall.", true),
-        (33, "C", "I notice tension in my body (headaches, tight shoulders, etc.) during demanding weeks.", false),
-        (34, "C", "I feel able to maintain a good balance between rest and activity.", true),
-        (35, "D", "I sometimes feel alone even when I am around other people.", false),
-        (36, "D", "It can take time for me to feel comfortable around new classmates.", false),
-        (37, "D", "I sometimes miss home or familiar surroundings.", false),
-        (38, "D", "I feel at ease starting conversations with others.", true),
-        (39, "D", "I feel that I have people I can talk to when I need support.", true),
-        (40, "D", "I sometimes prefer to keep things to myself rather than share.", false),
-        (41, "D", "I feel connected to at least a few people on campus.", true),
-        (42, "D", "I find group work or social interaction a bit tiring at times.", false),
-        (43, "D", "I feel welcomed and included in my academic environment.", true),
-        (44, "E", "I sometimes feel unsure about my future direction.", false),
-        (45, "E", "There are times when I feel I am not doing as well as others.", false),
-        (46, "E", "I occasionally lose interest in activities I used to enjoy.", false),
-        (47, "E", "I feel hopeful about where my life is going.", true),
-        (48, "E", "When challenges build up, I sometimes feel mentally drained.", false),
-        (49, "E", "I usually believe I can work through difficult situations.", true),
-        (50, "E", "During very stressful periods, I sometimes feel like taking a break from everything.", false)
-      ] %}
-
-      {% set sections = {
-        "B": ("SEC_B", "Academic Stress"),
-        "C": ("SEC_C", "Sleep & Physical Impact"),
-        "D": ("SEC_D", "Social Adjustment"),
-        "E": ("SEC_E", "Self-Perception & Risk Indicators")
-      } %}
-
-      {% set current_section = namespace(val="A") %}
-
-      {% for (num, sec, text, reverse) in questions %}
-        {% if sec != current_section.val %}
-          {% set current_section.val = sec %}
-          <div class="section-header">
-            <span class="section-num">{{ sections[sec][0] }}</span>
-            <span class="section-title">{{ sections[sec][1] }}</span>
-            <div class="section-line"></div>
-          </div>
-        {% endif %}
-
-        <div class="q-card" id="qcard-{{ num }}">
-          <div class="q-label">
-            <span class="q-num">{{ "%02d"|format(num) }}</span>
-            <span class="q-text">
-              {{ text }}
-              {% if reverse %}<span class="reverse-tag">&#8635;R</span>{% endif %}
-            </span>
-          </div>
-          <div class="scale-labels">
-            <span>Never</span><span>Rarely</span><span>Sometimes</span><span>Often</span><span>Very Often</span>
-          </div>
-          <div class="scale-row">
-            {% for v in [1,2,3,4,5] %}
-            <div class="scale-btn">
-              <input type="radio" name="q{{ num }}" id="q{{ num }}_{{ v }}" value="{{ v }}" onchange="onAnswer({{ num }})" required/>
-              <label for="q{{ num }}_{{ v }}">{{ v }}</label>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      {% endfor %}
+      <!-- Questions rendered statically (Jinja removed for pure HTML) -->
+      <div id="questionsContainer"></div>
 
       <div class="submit-block">
         <button type="submit" class="submit-btn">Submit Responses</button>
@@ -251,77 +210,203 @@
   </div>
 
   <script>
-    const total = 50;
-    let answered = new Set();
+  /* ─── QUESTIONS DATA ─────────────────────────────────────── */
+  const questions = [
+    [1,"A","At times, I notice myself feeling tense or on edge without a clear reason.",false],
+    [2,"A","Even when nothing urgent is happening, my mind sometimes stays busy or restless.",false],
+    [3,"A","I occasionally feel pressure to live up to expectations from myself or others.",false],
+    [4,"A","I sometimes think a lot about what might happen in my future.",false],
+    [5,"A","There are days when I feel low even if I cannot point to a specific reason.",false],
+    [6,"A","By the end of the day, I sometimes feel emotionally worn out.",false],
+    [7,"A","I usually feel able to handle everyday situations that come my way.",true],
+    [8,"A","Small problems can sometimes feel bigger than they actually are.",false],
+    [9,"A","I sometimes replay situations in my mind and think about them repeatedly.",false],
+    [10,"A","I feel generally positive about how things are going in my life.",true],
+    [11,"A","I sometimes find myself worrying about things that may never happen.",false],
+    [12,"A","I feel emotionally balanced most of the time.",true],
+    [13,"B","Thinking about assignments or deadlines sometimes makes me uneasy.",false],
+    [14,"B","I sometimes wonder if I can keep up with the pace of my courses.",false],
+    [15,"B","Before exams, I find myself thinking about possible outcomes a lot.",false],
+    [16,"B","I sometimes struggle to stay fully focused while studying.",false],
+    [17,"B","I notice that academic expectations can feel heavy at times.",false],
+    [18,"B","I feel confident in managing my coursework most of the time.",true],
+    [19,"B","When I fall behind, I sometimes feel discouraged.",false],
+    [20,"B","I sometimes compare my performance with other students.",false],
+    [21,"B","I feel comfortable asking for help when I don't understand something.",true],
+    [22,"B","There are times when I question whether I am studying the right way.",false],
+    [23,"B","I feel satisfied with how I am progressing academically.",true],
+    [24,"B","I sometimes feel pressure to do better even when I am already doing well.",false],
+    [25,"C","On some nights, it takes me time to fall asleep because my mind is active.",false],
+    [26,"C","I occasionally wake up feeling less rested than I expected.",false],
+    [27,"C","I notice changes in my appetite during busy or stressful times.",false],
+    [28,"C","I sometimes feel physically tired even on normal days.",false],
+    [29,"C","I feel energetic and refreshed on most mornings.",true],
+    [30,"C","My sleep pattern changes during exams or heavy workload periods.",false],
+    [31,"C","I sometimes skip meals or eat irregularly when stressed.",false],
+    [32,"C","I feel physically healthy overall.",true],
+    [33,"C","I notice tension in my body (headaches, tight shoulders, etc.) during demanding weeks.",false],
+    [34,"C","I feel able to maintain a good balance between rest and activity.",true],
+    [35,"D","I sometimes feel alone even when I am around other people.",false],
+    [36,"D","It can take time for me to feel comfortable around new classmates.",false],
+    [37,"D","I sometimes miss home or familiar surroundings.",false],
+    [38,"D","I feel at ease starting conversations with others.",true],
+    [39,"D","I feel that I have people I can talk to when I need support.",true],
+    [40,"D","I sometimes prefer to keep things to myself rather than share.",false],
+    [41,"D","I feel connected to at least a few people on campus.",true],
+    [42,"D","I find group work or social interaction a bit tiring at times.",false],
+    [43,"D","I feel welcomed and included in my academic environment.",true],
+    [44,"E","I sometimes feel unsure about my future direction.",false],
+    [45,"E","There are times when I feel I am not doing as well as others.",false],
+    [46,"E","I occasionally lose interest in activities I used to enjoy.",false],
+    [47,"E","I feel hopeful about where my life is going.",true],
+    [48,"E","When challenges build up, I sometimes feel mentally drained.",false],
+    [49,"E","I usually believe I can work through difficult situations.",true],
+    [50,"E","During very stressful periods, I sometimes feel like taking a break from everything.",false]
+  ];
 
-    function onAnswer(qNum) {
-      answered.add(qNum);
-      document.getElementById('qcard-' + qNum).classList.add('answered');
-      updateProgress();
+  const sectionMeta = {
+    B: ["SEC_B","Academic Stress"],
+    C: ["SEC_C","Sleep & Physical Impact"],
+    D: ["SEC_D","Social Adjustment"],
+    E: ["SEC_E","Self-Perception & Risk Indicators"]
+  };
+
+  /* ─── RENDER QUESTIONS ───────────────────────────────────── */
+  const container = document.getElementById('questionsContainer');
+  let currentSec = "A";
+  questions.forEach(([num, sec, text, reverse]) => {
+    if (sec !== currentSec) {
+      currentSec = sec;
+      const sh = document.createElement('div');
+      sh.className = 'section-header';
+      sh.innerHTML = `<span class="section-num">${sectionMeta[sec][0]}</span><span class="section-title">${sectionMeta[sec][1]}</span><div class="section-line"></div>`;
+      container.appendChild(sh);
     }
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = `qcard-${num}`;
+    const btns = [1,2,3,4,5].map(v =>
+      `<div class="scale-btn"><input type="radio" name="q${num}" id="q${num}_${v}" value="${v}" onchange="onAnswer(${num})" required/><label for="q${num}_${v}">${v}</label></div>`
+    ).join('');
+    card.innerHTML = `
+      <div class="q-label"><span class="q-num">${String(num).padStart(2,'0')}</span>
+        <span class="q-text">${text}${reverse?'<span class="reverse-tag">↺R</span>':''}</span>
+      </div>
+      <div class="scale-labels"><span>Never</span><span>Rarely</span><span>Sometimes</span><span>Often</span><span>Very Often</span></div>
+      <div class="scale-row">${btns}</div>`;
+    container.appendChild(card);
+  });
 
-    function updateProgress() {
-      const count = answered.size;
-      document.getElementById('progressFill').style.width = (count / total * 100) + '%';
-      document.getElementById('progressLabel').textContent = count + ' / ' + total;
-    }
-
-    document.getElementById('surveyForm').addEventListener('submit', function(e) {
-      if (answered.size < total) {
-        e.preventDefault();
-        document.getElementById('errorMsg').style.display = 'block';
-        for (let i = 1; i <= total; i++) {
-          if (!answered.has(i)) {
-            const card = document.getElementById('qcard-' + i);
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            card.style.borderColor = 'rgba(248,113,113,0.5)';
-            setTimeout(() => { card.style.borderColor = ''; }, 2000);
-            break;
-          }
+  /* ─── PROGRESS ───────────────────────────────────────────── */
+  const total = 50;
+  let answered = new Set();
+  function onAnswer(qNum) {
+    answered.add(qNum);
+    document.getElementById('qcard-' + qNum).classList.add('answered');
+    const count = answered.size;
+    document.getElementById('progressFill').style.width = (count/total*100)+'%';
+    document.getElementById('progressLabel').textContent = count+' / '+total;
+  }
+  document.getElementById('surveyForm').addEventListener('submit', function(e) {
+    if (answered.size < total) {
+      e.preventDefault();
+      document.getElementById('errorMsg').style.display = 'block';
+      for (let i = 1; i <= total; i++) {
+        if (!answered.has(i)) {
+          const card = document.getElementById('qcard-'+i);
+          card.scrollIntoView({behavior:'smooth',block:'center'});
+          card.style.borderColor = 'rgba(248,113,113,0.5)';
+          setTimeout(() => { card.style.borderColor = ''; }, 2000);
+          break;
         }
       }
+    }
+  });
+
+  /* ─── BACKGROUND COLOUR THEMES ──────────────────────────── */
+  const themes = [
+    { name: "violet dusk",   bg: "#06060a", orb1: "#a78bfa", orb2: "#34d399", orb3: "#f472b6", accent: "#a78bfa", light: "rgba(167,139,250,0.12)" },
+    { name: "midnight teal", bg: "#030d0a", orb1: "#2dd4bf", orb2: "#818cf8", orb3: "#34d399", accent: "#2dd4bf", light: "rgba(45,212,191,0.10)" },
+    { name: "crimson night",  bg: "#0a0304", orb1: "#f43f5e", orb2: "#fb923c", orb3: "#a78bfa", accent: "#f43f5e", light: "rgba(244,63,94,0.10)" },
+    { name: "cobalt deep",    bg: "#020612", orb1: "#60a5fa", orb2: "#818cf8", orb3: "#34d399", accent: "#60a5fa", light: "rgba(96,165,250,0.10)" },
+    { name: "amber forge",    bg: "#090601", orb1: "#fbbf24", orb2: "#f472b6", orb3: "#34d399", accent: "#fbbf24", light: "rgba(251,191,36,0.09)" },
+    { name: "rose void",      bg: "#0a0309", orb1: "#e879f9", orb2: "#60a5fa", orb3: "#fbbf24", accent: "#e879f9", light: "rgba(232,121,249,0.10)" },
+  ];
+
+  let themeIdx = 0;
+  const orb1El = document.getElementById('orb1');
+  const orb2El = document.getElementById('orb2');
+  const orb3El = document.getElementById('orb3');
+  const pill   = document.getElementById('theme-pill');
+  const mouseLight = document.getElementById('mouse-light');
+
+  function applyTheme(t, duration = '2s') {
+    document.body.style.transition = `background-color ${duration} ease`;
+    document.body.style.backgroundColor = t.bg;
+    orb1El.style.transition = `background ${duration} ease`;
+    orb2El.style.transition = `background ${duration} ease`;
+    orb3El.style.transition = `background ${duration} ease`;
+    orb1El.style.background = t.orb1;
+    orb2El.style.background = t.orb2;
+    orb3El.style.background = t.orb3;
+    mouseLight.style.background = `radial-gradient(circle, ${t.light} 0%, transparent 70%)`;
+    document.documentElement.style.setProperty('--accent', t.accent);
+    pill.textContent = t.name;
+    pill.style.borderColor = t.accent + '44';
+    pill.style.color = t.accent + 'aa';
+  }
+
+  applyTheme(themes[0], '0s');
+
+  setInterval(() => {
+    themeIdx = (themeIdx + 1) % themes.length;
+    applyTheme(themes[themeIdx], '2.5s');
+  }, 6000);
+
+  /* ─── MOUSE INTERACTIVE LIGHT ────────────────────────────── */
+  let mx = -9999, my = -9999;
+  let lightVisible = false;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    mouseLight.style.left = mx + 'px';
+    mouseLight.style.top  = my + 'px';
+    if (!lightVisible) { mouseLight.style.opacity = '1'; lightVisible = true; }
+  });
+  document.addEventListener('mouseleave', () => { mouseLight.style.opacity = '0'; lightVisible = false; });
+
+  /* ─── CUSTOM CURSOR ──────────────────────────────────────── */
+  (function(){
+    const dot  = document.getElementById('cur-dot');
+    const ring = document.getElementById('cur-ring');
+    const N = 8;
+    const trails = Array.from({length:N},(_,i)=>{
+      const el = document.createElement('div');
+      el.className = 'trail-pt';
+      const s = 4 - i * 0.35;
+      el.style.cssText = `width:${s}px;height:${s}px;opacity:${0.35-i*0.04};z-index:${9997-i};background:var(--accent)`;
+      document.body.appendChild(el);
+      return {el, x:-200, y:-200};
     });
-
-    // Custom Cursor
-    (function(){
-      const dot = document.getElementById('cur-dot');
-      const ring = document.getElementById('cur-ring');
-      const N = 8;
-      const trails = Array.from({length: N}, (_, i) => {
-        const el = document.createElement('div');
-        el.className = 'trail-pt';
-        const s = 4 - i * 0.35;
-        el.style.cssText = `width:${s}px;height:${s}px;opacity:${0.35 - i*0.04};z-index:${9997-i}`;
-        document.body.appendChild(el);
-        return { el, x: -200, y: -200 };
-      });
-      const pos = Array.from({length: N}, () => ({ x: -200, y: -200 }));
-      let mx = -200, my = -200, rx = -200, ry = -200;
-
-      document.addEventListener('mousemove', e => {
-        mx = e.clientX; my = e.clientY;
-        dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-      });
-
-      document.querySelectorAll('a, button, input, label, .scale-btn label, .submit-btn').forEach(el => {
-        el.addEventListener('mouseenter', () => document.body.classList.add('cur-hover'));
-        el.addEventListener('mouseleave', () => document.body.classList.remove('cur-hover'));
-      });
-
-      const lerp = (a, b, t) => a + (b - a) * t;
-      (function tick(){
-        rx = lerp(rx, mx, 0.12); ry = lerp(ry, my, 0.12);
-        ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-        pos[0].x = lerp(pos[0].x, mx, 0.3); pos[0].y = lerp(pos[0].y, my, 0.3);
-        for(let i = 1; i < N; i++){
-          pos[i].x = lerp(pos[i].x, pos[i-1].x, 0.55);
-          pos[i].y = lerp(pos[i].y, pos[i-1].y, 0.55);
-        }
-        trails.forEach((t,i) => { t.el.style.left = pos[i].x+'px'; t.el.style.top = pos[i].y+'px'; });
-        requestAnimationFrame(tick);
-      })();
+    const pos = Array.from({length:N},()=>({x:-200,y:-200}));
+    let cmx=-200,cmy=-200,rx=-200,ry=-200;
+    document.addEventListener('mousemove',e=>{
+      cmx=e.clientX; cmy=e.clientY;
+      dot.style.left=cmx+'px'; dot.style.top=cmy+'px';
+    });
+    document.querySelectorAll('a,button,input,label,.scale-btn label,.submit-btn').forEach(el=>{
+      el.addEventListener('mouseenter',()=>document.body.classList.add('cur-hover'));
+      el.addEventListener('mouseleave',()=>document.body.classList.remove('cur-hover'));
+    });
+    const lerp=(a,b,t)=>a+(b-a)*t;
+    (function tick(){
+      rx=lerp(rx,cmx,0.12); ry=lerp(ry,cmy,0.12);
+      ring.style.left=rx+'px'; ring.style.top=ry+'px';
+      pos[0].x=lerp(pos[0].x,cmx,0.3); pos[0].y=lerp(pos[0].y,cmy,0.3);
+      for(let i=1;i<N;i++){pos[i].x=lerp(pos[i].x,pos[i-1].x,0.55);pos[i].y=lerp(pos[i].y,pos[i-1].y,0.55);}
+      trails.forEach((t,i)=>{t.el.style.left=pos[i].x+'px';t.el.style.top=pos[i].y+'px';});
+      requestAnimationFrame(tick);
     })();
+  })();
   </script>
-
 </body>
 </html>

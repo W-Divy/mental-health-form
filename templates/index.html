@@ -33,7 +33,7 @@
     .orb3 { width: 300px; height: 300px; background: #f472b6; top: 40%; left: 50%; animation-delay: -8s; }
     @keyframes orbFloat { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-20px) scale(1.05); } 100% { transform: translate(-20px,30px) scale(0.95); } }
 
-    /* Cursor */
+    /* Custom Cursor */
     #cur-dot { position: fixed; width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: background 0.2s, transform 0.1s; }
     #cur-ring { position: fixed; width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(167,139,250,0.5); pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: width 0.25s ease, height 0.25s ease, border-color 0.25s; }
     body.cur-hover #cur-ring { width: 44px; height: 44px; border-color: rgba(167,139,250,0.9); }
@@ -67,6 +67,7 @@
     .q-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent; transition: background 0.25s; }
     .q-card.answered::before { background: var(--accent2); }
     .q-card:hover { border-color: var(--border-hover); }
+
     .q-label { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
     .q-num { font-family: var(--mono); font-size: 11px; color: var(--muted); min-width: 28px; padding-top: 2px; }
     .q-text { font-size: 14px; line-height: 1.65; color: var(--text); flex: 1; }
@@ -106,7 +107,7 @@
 </head>
 <body>
 
-  <!-- Cursor elements must be inside <body> -->
+  <!-- Cursor elements — must be first inside body -->
   <div id="cur-dot"></div>
   <div id="cur-ring"></div>
 
@@ -147,15 +148,15 @@
       </div>
 
       {% set questions = [
-        (1, "A", "At times, I notice myself feeling tense or on edge without a clear reason.", false),
-        (2, "A", "Even when nothing urgent is happening, my mind sometimes stays busy or restless.", false),
-        (3, "A", "I occasionally feel pressure to live up to expectations from myself or others.", false),
-        (4, "A", "I sometimes think a lot about what might happen in my future.", false),
-        (5, "A", "There are days when I feel low even if I cannot point to a specific reason.", false),
-        (6, "A", "By the end of the day, I sometimes feel emotionally worn out.", false),
-        (7, "A", "I usually feel able to handle everyday situations that come my way.", true),
-        (8, "A", "Small problems can sometimes feel bigger than they actually are.", false),
-        (9, "A", "I sometimes replay situations in my mind and think about them repeatedly.", false),
+        (1,  "A", "At times, I notice myself feeling tense or on edge without a clear reason.", false),
+        (2,  "A", "Even when nothing urgent is happening, my mind sometimes stays busy or restless.", false),
+        (3,  "A", "I occasionally feel pressure to live up to expectations from myself or others.", false),
+        (4,  "A", "I sometimes think a lot about what might happen in my future.", false),
+        (5,  "A", "There are days when I feel low even if I cannot point to a specific reason.", false),
+        (6,  "A", "By the end of the day, I sometimes feel emotionally worn out.", false),
+        (7,  "A", "I usually feel able to handle everyday situations that come my way.", true),
+        (8,  "A", "Small problems can sometimes feel bigger than they actually are.", false),
+        (9,  "A", "I sometimes replay situations in my mind and think about them repeatedly.", false),
         (10, "A", "I feel generally positive about how things are going in my life.", true),
         (11, "A", "I sometimes find myself worrying about things that may never happen.", false),
         (12, "A", "I feel emotionally balanced most of the time.", true),
@@ -217,12 +218,13 @@
             <div class="section-line"></div>
           </div>
         {% endif %}
+
         <div class="q-card" id="qcard-{{ num }}">
           <div class="q-label">
             <span class="q-num">{{ "%02d"|format(num) }}</span>
             <span class="q-text">
               {{ text }}
-              {% if reverse %}<span class="reverse-tag">↺R</span>{% endif %}
+              {% if reverse %}<span class="reverse-tag">&#8635;R</span>{% endif %}
             </span>
           </div>
           <div class="scale-labels">
@@ -248,7 +250,6 @@
     </form>
   </div>
 
-  <!-- All scripts go here, before </body> -->
   <script>
     const total = 50;
     let answered = new Set();
@@ -281,7 +282,7 @@
       }
     });
 
-    // Cursor
+    // Custom Cursor
     (function(){
       const dot = document.getElementById('cur-dot');
       const ring = document.getElementById('cur-ring');

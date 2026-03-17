@@ -1,7 +1,6 @@
-from flask import Flask, request, render_template, send_file, redirect, url_for
+from flask import Flask, request, render_template, send_file
 import csv
 import os
-import threading
 import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -14,22 +13,14 @@ CSV_FILE = os.path.join(BASE_DIR, "data", "responses.csv")
 
 # Ensure CSV file exists with header
 if not os.path.exists(CSV_FILE):
-    os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
     with open(CSV_FILE, "w", newline="") as f:
         writer = csv.writer(f)
         header = ["student_id"] + [f"q{i}" for i in range(1, 51)]
         writer.writerow(header)
 
 
-# ✅ Google Sheets function with auto-headers
-import threading
-
-sheets_lock = threading.Lock()
-headers_added = False
-
+# ✅ Google Sheets function
 def save_to_sheets(row):
-    global headers_added
-
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive"
@@ -40,17 +31,11 @@ def save_to_sheets(row):
     )
 
     client = gspread.authorize(creds)
+
     sheet = client.open("Flask Responses").sheet1
 
-    with sheets_lock:  # ✅ only one thread writes at a time
-        if not headers_added:
-            all_values = sheet.get_all_values()
-            if len(all_values) == 0 or all_values[0] == [] or all_values[0][0] == "":
-                headers = ["Student ID"] + [f"Q{i}" for i in range(1, 51)]
-                sheet.insert_row(headers, index=1)
-            headers_added = True
+    sheet.append_row(row)
 
-        sheet.append_row(row)
 
 @app.route("/divy")
 def download():
@@ -64,36 +49,38 @@ def home():
 
 @app.route("/submit", methods=["POST"])
 def submit():
+
+    # Normalize student ID
     student_id = request.form.get("student_id", "").strip().upper()
+
+    # Load CSV for duplicate check
+    df = pd.read_csv(CSV_FILE)
+
+    if student_id in df["student_id"].astype(str).str.strip().str.upper().values:
+        return render_template("repeat.html")
+
+    # Collect answers
     answers = [request.form.get(f"q{i}") for i in range(1, 51)]
+
     row = [student_id] + answers
 
-    # ✅ Save to CSV instantly
+    # ✅ Save to CSV (backup)
     with open(CSV_FILE, "a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(row)
 
-    # ✅ Save to Sheets in background so browser doesn't retry
-    threading.Thread(target=save_to_sheets, args=(row,)).start()
+    # ✅ Save to Google Sheets
+    save_to_sheets(row)
 
-    # ✅ Redirect immediately
-    return redirect(url_for("thanks"))
-
-
-@app.route("/thanks")
-def thanks():
     return render_template("thanks.html")
-
 
 @app.route("/test")
 def test():
     try:
-        test_row = ["TEST_STUDENT"] + [str(i) for i in range(1, 51)]
-        save_to_sheets(test_row)
-        return "Sheets working ✅ (row 1-50 numbers)"
+        save_to_sheets(["TEST_ID"] + ["A"]*50)
+        return "Sheets working ✅"
     except Exception as e:
-        return f"Error: {str(e)}"
-
-
+        return str(e)
+    
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=False, use_reloader=False)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
